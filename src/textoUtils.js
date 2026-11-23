@@ -6,7 +6,11 @@ class TextoUtils {
 
   /** Verifica se uma string é um palíndromo (ignorando espaços e caixa) */
   ehPalindromo(texto) {
-    const limpo = texto.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const limpo = texto
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
     return limpo === limpo.split("").reverse().join("");
   }
 

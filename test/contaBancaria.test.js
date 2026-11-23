@@ -209,4 +209,81 @@ describe("conta bancaria", () => {
     expect(conta.obterLimite()).toBe(0);
     expect(conta.obterStatus()).toBe("ativa");
   });
+
+  // Testes adicionados a partir do relatório de mutation testing (Stryker)
+
+  test("deve indicar que conta bloqueada nao esta ativa", () => {
+    // Arrange
+    const conta = new ContaBancaria({ ...criarContaBase(), status: "bloqueada" });
+
+    // Act
+    const ativa = conta.estaAtiva();
+
+    // Assert
+    expect(ativa).toBe(false);
+  });
+
+  test("deve permitir sacar exatamente saldo mais limite", () => {
+    // Arrange
+    const conta = new ContaBancaria(criarContaBase());
+
+    // Act
+    const sucesso = conta.sacar(150);
+
+    // Assert
+    expect(sucesso).toBe(true);
+    expect(conta.obterSaldo()).toBe(-50);
+  });
+
+  test("deve verificar limites de podeSacar", () => {
+    // Arrange
+    const conta = new ContaBancaria(criarContaBase());
+
+    // Act
+    const zero = conta.podeSacar(0);
+    const exato = conta.podeSacar(150);
+    const acima = conta.podeSacar(151);
+
+    // Assert
+    expect(zero).toBe(false);
+    expect(exato).toBe(true);
+    expect(acima).toBe(false);
+  });
+
+  test("deve permitir ajustar limite para zero", () => {
+    // Arrange
+    const conta = new ContaBancaria(criarContaBase());
+
+    // Act
+    const sucesso = conta.ajustarLimite(0);
+
+    // Assert
+    expect(sucesso).toBe(true);
+    expect(conta.obterLimite()).toBe(0);
+  });
+
+  test("deve identificar saldo negativo apenas quando menor que zero", () => {
+    // Arrange
+    const positivo = new ContaBancaria(criarContaBase());
+    const zerado = new ContaBancaria({ ...criarContaBase(), saldo: 0 });
+    const negativo = new ContaBancaria({ ...criarContaBase(), saldo: -1 });
+
+    // Act / Assert
+    expect(positivo.saldoNegativo()).toBe(false);
+    expect(zerado.saldoNegativo()).toBe(false);
+    expect(negativo.saldoNegativo()).toBe(true);
+  });
+
+  test("deve validar cada regra de validarConta", () => {
+    // Arrange
+    const criar = (alteracoes) => new ContaBancaria({ ...criarContaBase(), ...alteracoes });
+
+    // Act / Assert
+    expect(criar({ titular: "" }).validarConta()).toBe(false);
+    expect(criar({ saldo: "100" }).validarConta()).toBe(false);
+    expect(criar({ limite: -1 }).validarConta()).toBe(false);
+    expect(criar({ limite: 0 }).validarConta()).toBe(true);
+    expect(criar({ status: "bloqueada" }).validarConta()).toBe(true);
+    expect(criar({ status: "encerrada" }).validarConta()).toBe(true);
+  });
 });

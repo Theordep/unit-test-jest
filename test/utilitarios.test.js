@@ -98,4 +98,45 @@ describe("utilitarios", () => {
     expect(numero).toBeGreaterThanOrEqual(0);
     expect(numero).toBeLessThan(10);
   });
+
+  // Testes adicionados a partir do relatório de mutation testing (Stryker)
+
+  test("deve escalar Math.random pelo maximo informado", () => {
+    // Arrange
+    const util = new Utilitarios();
+    const spy = jest.spyOn(Math, "random").mockReturnValue(0.5);
+
+    // Act
+    const numero = util.gerarNumeroAleatorio(10);
+    const numeroPadrao = util.gerarNumeroAleatorio();
+    spy.mockRestore();
+
+    // Assert
+    expect(numero).toBe(5);
+    expect(numeroPadrao).toBe(50);
+  });
+
+  test("deve rejeitar string numerica em ehNumero", () => {
+    // Arrange
+    const util = new Utilitarios();
+
+    // Act
+    const resultado = util.ehNumero("5");
+
+    // Assert
+    expect(resultado).toBe(false);
+  });
+
+  test("deve identificar textos que nao sao palindromos", () => {
+    // Arrange
+    const util = new Utilitarios();
+
+    // Act
+    const naoPalindromo = util.ehPalindromo("jest");
+    const comPontuacao = util.ehPalindromo("A_b-a!");
+
+    // Assert
+    expect(naoPalindromo).toBe(false);
+    expect(comPontuacao).toBe(true);
+  });
 });

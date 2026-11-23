@@ -105,4 +105,30 @@ describe("banco", () => {
     // Assert
     expect(totalDepositado).toBe(30);
   });
+
+  // Testes adicionados a partir do relatório de mutation testing (Stryker)
+
+  test("deve iniciar com historico vazio e saldo inicial padrao zero", () => {
+    // Arrange
+    const conta = new Banco("Conta Nova");
+
+    // Act
+    const historico = conta.obterHistorico();
+    const saldo = conta.obterSaldo();
+
+    // Assert
+    expect(historico).toEqual([]);
+    expect(saldo).toBe(0);
+  });
+
+  test("deve permitir sacar exatamente o saldo disponivel", () => {
+    // Arrange
+    const conta = new Banco("Conta A", 100);
+
+    // Act
+    const saldo = conta.sacar(100);
+
+    // Assert
+    expect(saldo).toBe(0);
+  });
 });
